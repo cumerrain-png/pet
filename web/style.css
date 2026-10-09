@@ -10,6 +10,7 @@
   --warn: #b45309;
   --conflict: #b42318;
   --warm: #067647;
+  --hot: #0b6e99;
   --shadow: 0 12px 40px rgba(15, 40, 32, 0.08);
   --radius: 18px;
   --font: "DM Sans", "Segoe UI", sans-serif;
@@ -138,6 +139,7 @@ h1 {
   letter-spacing: 0.04em;
 }
 
+.track-label.hot { color: var(--hot); }
 .track-label.conflict { color: var(--conflict); }
 .track-label.warm { color: var(--warm); }
 

@@ -24,6 +24,7 @@ async function api(path, options = {}) {
 }
 
 function trackLabel(track) {
+  if (track === "hot") return "热点";
   if (track === "conflict") return "冲突";
   if (track === "warm") return "温馨";
   return track || "其它";
@@ -82,12 +83,19 @@ function formatTime(iso) {
 }
 
 function renderLists() {
+  const hot = state.items.filter((x) => x.track === "hot");
   const conflict = state.items.filter((x) => x.track === "conflict");
   const warm = state.items.filter((x) => x.track === "warm");
-  const other = state.items.filter((x) => x.track !== "conflict" && x.track !== "warm");
+  const other = state.items.filter(
+    (x) => x.track !== "hot" && x.track !== "conflict" && x.track !== "warm",
+  );
 
+  const hEl = $("#hot-list");
   const cEl = $("#conflict-list");
   const wEl = $("#warm-list");
+  hEl.innerHTML = hot.length
+    ? `<p class="track-label hot">热点 · ${hot.length}</p>${hot.map(renderItem).join("")}`
+    : "";
   cEl.innerHTML = conflict.length
     ? `<p class="track-label conflict">冲突 · ${conflict.length}</p>${conflict.map(renderItem).join("")}`
     : "";

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import quote_plus, urlparse
+from zoneinfo import ZoneInfo
 
 import feedparser
 import httpx
@@ -22,6 +24,34 @@ VID_EXT = (".mp4", ".webm", ".mov", ".m3u8")
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _on_local_day(dt: datetime, now: datetime, tz_name: str) -> bool:
+    tz = ZoneInfo(tz_name)
+    return dt.astimezone(tz).date() == now.astimezone(tz).date()
+
+
+def _source_url(src: dict[str, Any]) -> str | None:
+    if (src.get("type") or "rss") == "google_news":
+        return google_news_url(
+            src.get("query") or "宠物",
+            src.get("hl") or "zh-CN",
+            src.get("gl") or "CN",
+            src.get("ceid") or "CN:zh-Hans",
+        )
+    return src.get("url") or None
+
+
+def _fetch_one(
+    src: dict[str, Any], user_agent: str, timeout: float
+) -> tuple[dict[str, Any], feedparser.FeedParserDict | None, str | None]:
+    url = _source_url(src)
+    if not url:
+        return src, None, "无 URL"
+    try:
+        return src, _fetch_feed(url, user_agent, timeout), None
+    except Exception as exc:  # noqa: BLE001
+        return src, None, str(exc)
 
 
 def _parse_dt(entry: dict[str, Any]) -> datetime | None:
@@ -131,6 +161,41 @@ def _match_keywords(text: str, keywords: list[str]) -> bool:
     return any(k.lower() in lower for k in keywords)
 
 
+# 短词（猫/狗/cat/pet）误伤很多，先丢掉明显不是宠物的撞词，再要求正文像宠物内容。
+_REJECT_RE = re.compile(
+    r"貓空|猫空|黑貓中隊|黑猫中队|四叉貓|四叉猫|熊猫|熊貓|猫头鹰|貓頭鷹|热狗|熱狗|"
+    r"狗狗币|狗狗幣|dogecoin|"
+    r"\bcat\s*\.?\s*[1-5]\b|\bhurricane\b|\bCAT\s*20\d{2}\b|\bCAT\d{6}|"
+    r"ASX:\s*PET|PET SHOP BOYS|Pet Shop Boys|\bCat Empire\b|"
+    r"\bcopycat\b|\bcatalog|\bcatalyst|\bcaterpill|\bdogwood\b|"
+    r"\bunderdog\b|\bwatchdog\b|\bhot\s*dogs?\b|"
+    r"hardwood|softwood|fuelwood|first dog on the moon|\bdog squad\b|"
+    r"早期アクセス|オープンワールド|連載|試し読み|"
+    r"\bPET\s*scans?\b|ASX:\s*CAT\b|"
+    r"除息|填息|商标|商標|购标|購標|"
+    r"黑貓裝置|黑猫装置|50隻黑貓|50只黑猫|"
+    r"for global buyers",
+    re.IGNORECASE,
+)
+_PET_RE = re.compile(
+    r"宠物|寵物|猫咪|貓咪|狗狗|小猫|小狗|小貓|流浪猫|流浪狗|流浪貓|流浪狗|"
+    r"毛孩子|毛小孩|铲屎|养宠|養寵|喵星人|汪星人|猫粮|狗粮|貓糧|狗糧|"
+    r"领养|領養|绝育|絕育|猫咖|貓咖|柯基|金毛|哈士奇|布偶|"
+    r"猫|狗|貓|犬|"
+    r"\bpets?\b|\bdogs?\b|\bcats?\b|\bpupp(?:y|ies)\b|\bkittens?\b|"
+    r"\bcanines?\b|\bfelines?\b|\bpooches?\b|\bkitt(?:y|ies)\b|"
+    r"ペット|わんこ|にゃんこ|子猫|子犬|飼い猫|飼い犬|保護犬|保護猫|犬猫|譲渡|"
+    r"반려동물|강아지|고양이|반려견|반려묘|길고양이",
+    re.IGNORECASE,
+)
+
+
+def _is_pet_topic(text: str) -> bool:
+    if _REJECT_RE.search(text):
+        return False
+    return _PET_RE.search(text) is not None
+
+
 def _fetch_feed(url: str, user_agent: str, timeout: float) -> feedparser.FeedParserDict:
     headers = {"User-Agent": user_agent}
     # connect 单独限时，避免外网被墙时长时间挂死
@@ -167,45 +232,53 @@ def collect_candidates(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     lookback = int(collect_cfg.get("lookback_hours", 48))
     max_per_source = int(collect_cfg.get("max_per_source", 15))
     max_candidates = int(collect_cfg.get("max_candidates", 20))
-    include_kw = collect_cfg.get("include_keywords") or []
     conflict_kw = collect_cfg.get("conflict_keywords") or []
     warm_kw = collect_cfg.get("warm_keywords") or []
     exclude_kw = collect_cfg.get("exclude_keywords") or []
     balance_tracks = bool(collect_cfg.get("balance_tracks", True))
+    same_day_only = bool(collect_cfg.get("same_day_only", False))
+    tz_name = str(collect_cfg.get("timezone") or "Asia/Shanghai")
+    diverse_cap = max(1, int(collect_cfg.get("diverse_per_source", 8)))
+    workers = max(1, int(collect_cfg.get("fetch_workers", 6)))
     net = cfg.get("network") or {}
     user_agent = net.get("user_agent") or "PetDailyBot/0.1"
     timeout = float(net.get("timeout_seconds") or 30)
 
-    cutoff = _now() - timedelta(hours=lookback)
+    now = _now()
+    cutoff = now - timedelta(hours=lookback)
     sources = load_sources()
     items: list[dict[str, Any]] = []
     seen: set[str] = set()
     seen_titles: set[str] = set()
 
+    def _in_window(dt: datetime | None) -> bool:
+        if same_day_only:
+            if dt is None:
+                return False
+            return _on_local_day(dt, now, tz_name)
+        return not (dt and dt < cutoff)
+
+    console.print(f"[cyan]并行抓取 {len(sources)} 个信源[/cyan] ...")
+    feeds: dict[int, feedparser.FeedParserDict] = {}
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [pool.submit(_fetch_one, src, user_agent, timeout) for src in sources]
+        for fut in as_completed(futures):
+            src, feed, err = fut.result()
+            name = src.get("name") or src.get("id") or "unknown"
+            if err or feed is None:
+                console.print(f"[red]失败[/red] {name}: {err}")
+                continue
+            feeds[id(src)] = feed
+            console.print(f"[cyan]完成[/cyan] {name}（{len(feed.entries)} 条原始）")
+
     for src in sources:
+        feed = feeds.get(id(src))
+        if feed is None:
+            continue
         src_id = src.get("id") or "unknown"
         name = src.get("name") or src_id
         track = (src.get("track") or "any").strip().lower()
         typ = src.get("type") or "rss"
-        if typ == "google_news":
-            url = google_news_url(
-                src.get("query") or "宠物",
-                src.get("hl") or "zh-CN",
-                src.get("gl") or "CN",
-                src.get("ceid") or "CN:zh-Hans",
-            )
-        else:
-            url = src.get("url")
-            if not url:
-                console.print(f"[yellow]跳过无 URL 信源: {src_id}[/yellow]")
-                continue
-
-        console.print(f"[cyan]抓取[/cyan] {name} ...")
-        try:
-            feed = _fetch_feed(url, user_agent, timeout)
-        except Exception as exc:  # noqa: BLE001
-            console.print(f"[red]失败[/red] {name}: {exc}")
-            continue
 
         count = 0
         for entry in feed.entries:
@@ -217,7 +290,7 @@ def collect_candidates(cfg: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
 
             dt = _parse_dt(entry)
-            if dt and dt < cutoff:
+            if not _in_window(dt):
                 continue
 
             summary = BeautifulSoup(
@@ -227,7 +300,7 @@ def collect_candidates(cfg: dict[str, Any]) -> list[dict[str, Any]]:
             summary = re.sub(r"\s+", " ", summary)[:280]
 
             blob = f"{title} {summary}"
-            if not _match_keywords(blob, include_kw):
+            if not _is_pet_topic(blob):
                 continue
             src_lang = (src.get("lang") or ("zh" if typ == "google_news" else "unknown")).lower()
             if track == "conflict" and conflict_kw and not _match_keywords(blob, conflict_kw):
@@ -326,8 +399,16 @@ def collect_candidates(cfg: dict[str, Any]) -> list[dict[str, Any]]:
             ),
         )
     else:
-        items.sort(key=sort_key, reverse=True)
-        items = items[:max_candidates]
+        # 当天广覆盖：先按时间从新到旧，每个信源设上限，不够再补
+        items.sort(key=lambda it: it.get("published_at") or "", reverse=True)
+        raw_count = len(items)
+        items = _take_diverse(items, max_candidates, diverse_cap)
+        items.sort(key=lambda it: it.get("published_at") or "", reverse=True)
+        day_note = "当天" if same_day_only else f"近 {lookback} 小时"
+        console.print(
+            f"[green]{day_note}去重后 {raw_count} 条，输出 {len(items)} 条[/green]"
+            f"（目标 {max_candidates}）"
+        )
 
     for i, it in enumerate(items, start=1):
         it["id"] = i

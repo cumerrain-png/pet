@@ -1,6 +1,7 @@
 # 信源可随时增删。type: google_news | rss
-# track: conflict | warm —— 冲突/温馨双轨，清单里各约占一半供挑选
-# 谷歌检索加 when:7d；collect 需挂梯子
+# track: conflict | warm | hot
+# 谷歌检索 when:1d，再由采集器按中国时区自然日过滤；collect 需挂梯子
+# trust_query: true 表示检索式本身已限定宠物，不再套中文关键词（用于英/日/韩等）
 
 sources:
   # ========== 冲突 ==========
@@ -8,7 +9,7 @@ sources:
     name: 冲突-进店上桌
     track: conflict
     type: google_news
-    query: "(宠物进店 OR 宠物上桌 OR 禁宠令 OR 老乡鸡 狗) when:7d"
+    query: "(宠物进店 OR 宠物上桌 OR 禁宠令 OR 老乡鸡 狗) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -19,7 +20,7 @@ sources:
     name: 冲突-咬人伤人
     track: conflict
     type: google_news
-    query: "(狗咬人 OR 恶犬 OR 猫抓伤 OR 流浪狗袭击) when:7d"
+    query: "(狗咬人 OR 恶犬 OR 猫抓伤 OR 流浪狗袭击) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -30,7 +31,7 @@ sources:
     name: 冲突-争议纠纷
     track: conflict
     type: google_news
-    query: "(宠物 争议 OR 宠物 纠纷 OR 宠物 风波 OR 养宠 对立) when:7d"
+    query: "(宠物 争议 OR 宠物 纠纷 OR 宠物 风波 OR 养宠 对立) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -41,7 +42,7 @@ sources:
     name: 冲突-执法弃养
     track: conflict
     type: google_news
-    query: "(宠物被罚 OR 弃养 OR 黑心繁殖场 OR 理赔遭拒 OR 犬吠 投诉) when:7d"
+    query: "(宠物被罚 OR 弃养 OR 黑心繁殖场 OR 理赔遭拒 OR 犬吠 投诉) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -52,7 +53,7 @@ sources:
     name: 冲突-流浪捕捉
     track: conflict
     type: google_news
-    query: "(流浪狗 捕捉 OR 流浪猫 冲突 OR 禁喂 OR 渔护署 狗) when:7d"
+    query: "(流浪狗 捕捉 OR 流浪猫 冲突 OR 禁喂 OR 渔护署 狗) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -63,7 +64,7 @@ sources:
     name: 冲突-被曝回应
     track: conflict
     type: google_news
-    query: "(宠物 被曝 OR 宠物狗 上桌 OR 火锅 宠物) when:7d"
+    query: "(宠物 被曝 OR 宠物狗 上桌 OR 火锅 宠物) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -83,7 +84,7 @@ sources:
     name: 温馨-暖心宠物
     track: warm
     type: google_news
-    query: "暖心 宠物 when:7d"
+    query: "暖心 宠物 when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -94,7 +95,7 @@ sources:
     name: 温馨-陪伴
     track: warm
     type: google_news
-    query: "(狗狗 陪伴 OR 猫咪 暖心 OR 宠物 陪伴) when:7d"
+    query: "(狗狗 陪伴 OR 猫咪 暖心 OR 宠物 陪伴) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -105,7 +106,7 @@ sources:
     name: 温馨-领养收养
     track: warm
     type: google_news
-    query: "(流浪猫 收养 OR 流浪狗 领养 OR 领养 狗 OR 领养 猫) when:7d"
+    query: "(流浪猫 收养 OR 流浪狗 领养 OR 领养 狗 OR 领养 猫) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -116,7 +117,7 @@ sources:
     name: 温馨-获救
     track: warm
     type: google_news
-    query: "(狗狗 获救 OR 猫咪 获救 OR 宠物获救 OR 黑心繁殖场 获救) when:7d"
+    query: "(狗狗 获救 OR 猫咪 获救 OR 宠物获救 OR 黑心繁殖场 获救) when:1d"
     hl: "zh-CN"
     gl: "CN"
     ceid: "CN:zh-Hans"
@@ -171,7 +172,7 @@ sources:
     name: The Dodo
     track: warm
     type: google_news
-    query: "site:thedodo.com when:7d"
+    query: "site:thedodo.com when:1d"
     hl: "en-US"
     gl: "US"
     ceid: "US:en"
@@ -182,7 +183,7 @@ sources:
     name: PetMD
     track: warm
     type: google_news
-    query: "site:petmd.com when:7d"
+    query: "site:petmd.com when:1d"
     hl: "en-US"
     gl: "US"
     ceid: "US:en"
@@ -196,3 +197,169 @@ sources:
     url: "https://www.akc.org/expert-advice/feed/"
     enabled: true
     lang: en
+
+  # ========== 当天热点：广覆盖，放在冲突/温馨之后，重复标题保留更具体的轨 ==========
+  - id: gn_hot_zh
+    name: 热点-中文宠物
+    track: hot
+    type: google_news
+    query: "(宠物 OR 猫咪 OR 狗狗 OR 流浪猫 OR 流浪狗) when:1d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+    trust_query: true
+
+  - id: gn_hot_zh_cat
+    name: 热点-中文猫
+    track: hot
+    type: google_news
+    query: "(猫咪 OR 小猫 OR 流浪猫 OR 猫粮) when:1d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+    trust_query: true
+
+  - id: gn_hot_zh_dog
+    name: 热点-中文狗
+    track: hot
+    type: google_news
+    query: "(狗狗 OR 小狗 OR 流浪狗 OR 狗咬) when:1d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+    trust_query: true
+
+  - id: bing_hot
+    name: Bing-宠物当天
+    track: hot
+    type: rss
+    url: "https://www.bing.com/news/search?q=%E5%AE%A0%E7%89%A9+OR+%E7%8C%AB%E5%92%AA+OR+%E7%8B%97%E7%8B%97&format=rss"
+    enabled: true
+    lang: zh
+    trust_query: true
+
+  - id: gn_hot_hk
+    name: 热点-香港
+    track: hot
+    type: google_news
+    query: "(寵物 OR 貓 OR 狗) when:1d"
+    hl: "zh-HK"
+    gl: "HK"
+    ceid: "HK:zh-Hant"
+    enabled: true
+    lang: zh
+    trust_query: true
+
+  - id: gn_hot_tw
+    name: 热点-台湾
+    track: hot
+    type: google_news
+    query: "(寵物 OR 貓 OR 狗) when:1d"
+    hl: "zh-TW"
+    gl: "TW"
+    ceid: "TW:zh-Hant"
+    enabled: true
+    lang: zh
+    trust_query: true
+
+  - id: gn_hot_us
+    name: 热点-美国
+    track: hot
+    type: google_news
+    query: "(pet OR dog OR cat OR puppy OR kitten) when:1d"
+    hl: "en-US"
+    gl: "US"
+    ceid: "US:en"
+    enabled: true
+    lang: en
+    trust_query: true
+
+  - id: gn_hot_gb
+    name: 热点-英国
+    track: hot
+    type: google_news
+    query: "(pet OR dog OR cat OR puppy OR kitten) when:1d"
+    hl: "en-GB"
+    gl: "GB"
+    ceid: "GB:en"
+    enabled: true
+    lang: en
+    trust_query: true
+
+  - id: gn_hot_au
+    name: 热点-澳洲
+    track: hot
+    type: google_news
+    query: "(pet OR dog OR cat) when:1d"
+    hl: "en-AU"
+    gl: "AU"
+    ceid: "AU:en"
+    enabled: true
+    lang: en
+    trust_query: true
+
+  - id: gn_hot_ca
+    name: 热点-加拿大
+    track: hot
+    type: google_news
+    query: "(pet OR dog OR cat) when:1d"
+    hl: "en-CA"
+    gl: "CA"
+    ceid: "CA:en"
+    enabled: true
+    lang: en
+    trust_query: true
+
+  - id: gn_hot_in
+    name: 热点-印度
+    track: hot
+    type: google_news
+    query: "(pet OR dog OR cat) when:1d"
+    hl: "en-IN"
+    gl: "IN"
+    ceid: "IN:en"
+    enabled: true
+    lang: en
+    trust_query: true
+
+  - id: gn_hot_jp
+    name: 热点-日本
+    track: hot
+    type: google_news
+    query: "(ペット OR 犬 OR 猫) when:1d"
+    hl: "ja"
+    gl: "JP"
+    ceid: "JP:ja"
+    enabled: true
+    lang: ja
+    trust_query: true
+
+  - id: gn_hot_kr
+    name: 热点-韩国
+    track: hot
+    type: google_news
+    query: "(반려동물 OR 강아지 OR 고양이) when:1d"
+    hl: "ko"
+    gl: "KR"
+    ceid: "KR:ko"
+    enabled: true
+    lang: ko
+    trust_query: true
+
+  - id: gn_hot_sg
+    name: 热点-新加坡
+    track: hot
+    type: google_news
+    query: "(宠物 OR pet OR dog OR cat) when:1d"
+    hl: "en-SG"
+    gl: "SG"
+    ceid: "SG:en"
+    enabled: true
+    lang: en
+    trust_query: true

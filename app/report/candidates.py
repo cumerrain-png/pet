@@ -27,12 +27,17 @@ def render_markdown(day: str, items: list[dict[str, Any]]) -> str:
         lines.append("_今日暂无候选，可放宽关键词或增加信源。_")
         return "\n".join(lines) + "\n"
 
-    n_conflict = sum(1 for it in items if it.get("track") == "conflict")
-    n_warm = sum(1 for it in items if it.get("track") == "warm")
-    lines.append(f"_本清单：冲突 {n_conflict} 条 / 温馨 {n_warm} 条（可混选）。_")
+    labels = {"hot": "热点", "conflict": "冲突", "warm": "温馨"}
+    counts = {key: sum(1 for it in items if it.get("track") == key) for key in labels}
+    other = len(items) - sum(counts.values())
+    parts = [f"{label} {counts[key]}" for key, label in labels.items() if counts[key]]
+    if other:
+        parts.append(f"其它 {other}")
+    breakdown = " / ".join(parts) if parts else "无分类"
+    lines.append(f"_当天候选（{breakdown}）。勾选其中几条再生成。_")
     lines.append("")
 
-    track_label = {"conflict": "冲突", "warm": "温馨"}
+    track_label = labels
 
     for it in items:
         img_mark = "✓" if it.get("has_image") else "✗"

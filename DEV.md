@@ -173,11 +173,12 @@ pet-daily/
 
 ### 6.1 外网采集依赖梯子 + 冲突/温馨双轨
 
-跑 `collect` 时挂梯子（建议全局/TUN）。清单为 **冲突 + 温馨** 双轨，约各一半供人工混选：
+跑 `collect` 时挂梯子（建议全局/TUN）。清单目标是 **当天 100 条**，用户再勾选几条：
 
-- `data/sources.yaml`：`track: conflict | warm`；谷歌检索带 `when:7d`
-- `config.yaml`：`conflict_keywords` / `warm_keywords` 按轨过滤；`balance_tracks: true`
-- 标题去媒体后缀去重；candidates.md 带【冲突】/【温馨】标签
+- 只保留 `Asia/Shanghai` 自然日当天；不够 100 也不用旧闻凑
+- `data/sources.yaml`：`track: conflict | warm | hot`；谷歌检索 `when:1d`；热点源覆盖中/港/台/美/英/澳/加/印/日/韩/新
+- `config.yaml`：`max_candidates: 100`，`same_day_only: true`，`balance_tracks: false`（广覆盖优先，冲突/温馨仍带标签）
+- 标题去媒体后缀去重；每个信源先最多 `diverse_per_source` 条
 
 无梯子时仍可能 0 条。`produce` 只打内网 LLM，可不挂代理。
 

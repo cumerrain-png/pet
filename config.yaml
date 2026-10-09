@@ -7,12 +7,18 @@ llm:
   timeout_seconds: 120
 
 collect:
-  lookback_hours: 168  # 冲突稿更新慢，近 7 天
-  max_per_source: 15
-  max_candidates: 20
-  # 双轨清单：冲突 / 温馨 各尽量占一半
-  balance_tracks: true
-  # 宠物相关：命中任一；为空则不过滤
+  # 第一优先：只要当天（Asia/Shanghai 自然日）。不够 100 条也不用旧闻凑数。
+  same_day_only: true
+  timezone: Asia/Shanghai
+  lookback_hours: 24  # 仅 same_day_only: false 时生效
+  max_per_source: 30
+  max_candidates: 100
+  # 总数超过 100 时，每个信源先最多取这么多，再回头补，避免一个站占满
+  diverse_per_source: 8
+  fetch_workers: 6
+  # 关闭对半切分，当天广覆盖优先；冲突/温馨仍保留标签
+  balance_tracks: false
+  # 是否宠物内容由 app/fetch/collect.py 判定（拦掉 Cat 3、貓空、PET 扫描这类撞词）
   include_keywords:
     - 宠物
     - 猫
