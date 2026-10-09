@@ -1,0 +1,188 @@
+# 可随时切换模型：只改 llm 段即可
+llm:
+  base_url: "http://192.168.11.96:8888/v1"
+  api_key: "sk-local"
+  model: "deepseek-v4-flash-0731"
+  temperature: 0.7
+  timeout_seconds: 120
+
+collect:
+  lookback_hours: 168  # 冲突稿更新慢，近 7 天
+  max_per_source: 15
+  max_candidates: 20
+  # 双轨清单：冲突 / 温馨 各尽量占一半
+  balance_tracks: true
+  # 宠物相关：命中任一；为空则不过滤
+  include_keywords:
+    - 宠物
+    - 猫
+    - 狗
+    - 猫咪
+    - 猫狗
+    - 养宠
+    - 铲屎
+    - 喵
+    - 汪
+    - 流浪猫
+    - 流浪狗
+    - 绝育
+    - 猫粮
+    - 狗粮
+    - 宠物医疗
+    - pet
+    - cat
+    - dog
+    - kitten
+    - puppy
+  # 仅对 track=conflict 的信源生效
+  conflict_keywords:
+    - 争议
+    - 纠纷
+    - 冲突
+    - 风波
+    - 被曝
+    - 对立
+    - 网暴
+    - 反转
+    - 吵翻
+    - 禁宠
+    - 禁养
+    - 禁喂
+    - 进店
+    - 上桌
+    - 咬人
+    - 伤人
+    - 抓伤
+    - 袭击
+    - 被罚
+    - 处罚
+    - 投诉
+    - 举报
+    - 弃养
+    - 繁殖场
+    - 拒赔
+    - 遭拒
+    - 理赔
+    - 捕捉
+    - 扑杀
+    - 获救
+    - 当街
+    - 高速
+    - 劝阻
+    - 禁止宠物
+    - 邻居
+    - 犬吠
+    - 陷阱
+    - 回应
+    - 抵制
+    - 地铁
+    - 电梯
+    - 恶犬
+    - 狗肉
+    - 惨遭
+    - 扑出
+    - 狂追
+    - 特别行动
+    - 无人看管
+    - 管不了
+  # 仅对 track=warm 的信源生效（英文源可靠 rescue/adopt 等）
+  warm_keywords:
+    - 暖心
+    - 获救
+    - 救人
+    - 治愈
+    - 陪伴
+    - 领养
+    - 收养
+    - 感人
+    - 感动
+    - 忠犬
+    - 泪目
+    - 送主人
+    - 回家
+    - 团圆
+    - 救助
+    - 收留
+    - 挽命
+    - 可爱
+    - 刷屏
+    - 守护
+    - 相伴
+    - 小奶猫
+    - 一步三回头
+    - rescue
+    - adopt
+    - heartwarming
+    - saved
+    - reunion
+  # 广告/软文/低质；命中任一丢弃（温馨正稿不拦）
+  exclude_keywords:
+    - 虐杀
+    - 虐猫
+    - 虐狗
+    - 血腥
+    - 解剖细节
+    # 荐品/导购
+    - 怎么选
+    - 闭眼入
+    - 款推荐
+    - 医院推荐
+    - 就诊指南
+    - 这家医院
+    - 医院有啥
+    - 医院怎么样
+    - 术后康复训练
+    - 千元内
+    - 硬指标
+    - FAQ
+    - 种草
+    - 测评
+    - 优惠券
+    - 折扣码
+    - 下单
+    - 买一送
+    # 财经/市场/招商软文
+    - 新蓝海
+    - 万亿
+    - 市场展望
+    - 市场规模
+    - 宠物经济
+    - 项目签约
+    - 联盟揭牌
+    - 股份正在
+    - 股价
+    - 财报
+    - 融资
+    - IPO
+    - 行业短板
+    - 没那么好赚
+    - 订单暴涨
+    # 英文广告/通稿
+    - sponsored
+    - buyer's guide
+    - best products
+    - deal of
+    - coupon
+    # 低质/虚构/广告马甲
+    - 变成了人
+    - 憋住别笑
+    - press release
+    - bwin
+    - 官网流浪
+
+paths:
+  output_dir: "output"
+  selection_file: "selection.json"
+
+# 语音后续接入：实现 VoiceProvider 后在此填写
+voice:
+  enabled: false
+  provider: "local"  # local | edge | none
+  # local_base_url: "http://127.0.0.1:xxxx"
+  # local_api_key: ""
+  # local_voice: ""
+
+network:
+  # 偏浏览器 UA，减少部分站点 403；collect 外网信源需挂梯子
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+  timeout_seconds: 15

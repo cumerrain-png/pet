@@ -1,0 +1,198 @@
+# 信源可随时增删。type: google_news | rss
+# track: conflict | warm —— 冲突/温馨双轨，清单里各约占一半供挑选
+# 谷歌检索加 when:7d；collect 需挂梯子
+
+sources:
+  # ========== 冲突 ==========
+  - id: gn_enter
+    name: 冲突-进店上桌
+    track: conflict
+    type: google_news
+    query: "(宠物进店 OR 宠物上桌 OR 禁宠令 OR 老乡鸡 狗) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_bite
+    name: 冲突-咬人伤人
+    track: conflict
+    type: google_news
+    query: "(狗咬人 OR 恶犬 OR 猫抓伤 OR 流浪狗袭击) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_dispute
+    name: 冲突-争议纠纷
+    track: conflict
+    type: google_news
+    query: "(宠物 争议 OR 宠物 纠纷 OR 宠物 风波 OR 养宠 对立) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_enforce
+    name: 冲突-执法弃养
+    track: conflict
+    type: google_news
+    query: "(宠物被罚 OR 弃养 OR 黑心繁殖场 OR 理赔遭拒 OR 犬吠 投诉) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_stray
+    name: 冲突-流浪捕捉
+    track: conflict
+    type: google_news
+    query: "(流浪狗 捕捉 OR 流浪猫 冲突 OR 禁喂 OR 渔护署 狗) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_viral
+    name: 冲突-被曝回应
+    track: conflict
+    type: google_news
+    query: "(宠物 被曝 OR 宠物狗 上桌 OR 火锅 宠物) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: bing_conflict
+    name: Bing-宠物冲突
+    track: conflict
+    type: rss
+    url: "https://www.bing.com/news/search?q=%E7%8B%97%E5%92%AC%E4%BA%BA+OR+%E5%AE%A0%E7%89%A9%E8%BF%9B%E5%BA%97+OR+%E7%A6%81%E5%AE%A0&format=rss"
+    enabled: true
+    lang: zh
+
+  # ========== 温馨 ==========
+  - id: gn_warm_heart
+    name: 温馨-暖心宠物
+    track: warm
+    type: google_news
+    query: "暖心 宠物 when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_warm_bond
+    name: 温馨-陪伴
+    track: warm
+    type: google_news
+    query: "(狗狗 陪伴 OR 猫咪 暖心 OR 宠物 陪伴) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_warm_adopt
+    name: 温馨-领养收养
+    track: warm
+    type: google_news
+    query: "(流浪猫 收养 OR 流浪狗 领养 OR 领养 狗 OR 领养 猫) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: gn_warm_rescue
+    name: 温馨-获救
+    track: warm
+    type: google_news
+    query: "(狗狗 获救 OR 猫咪 获救 OR 宠物获救 OR 黑心繁殖场 获救) when:7d"
+    hl: "zh-CN"
+    gl: "CN"
+    ceid: "CN:zh-Hans"
+    enabled: true
+    lang: zh
+
+  - id: bing_warm
+    name: Bing-宠物温馨
+    track: warm
+    type: rss
+    url: "https://www.bing.com/news/search?q=%E5%AE%A0%E7%89%A9+%28%E6%9A%96%E5%BF%83+OR+%E8%8E%B7%E6%95%91+OR+%E9%A2%86%E5%85%BB+OR+%E6%B2%BB%E6%84%88%29&format=rss"
+    enabled: true
+    lang: zh
+
+  # 英文生活向（温馨/趣味，produce 会写成中文）；需要更多英文素材时保持开启
+  - id: dogster
+    name: Dogster
+    track: warm
+    type: rss
+    url: "https://www.dogster.com/feed"
+    enabled: true
+    lang: en
+
+  - id: catster
+    name: Catster
+    track: warm
+    type: rss
+    url: "https://www.catster.com/feed"
+    enabled: true
+    lang: en
+
+  - id: petsradar
+    name: PetsRadar
+    track: warm
+    type: rss
+    url: "https://www.petsradar.com/feeds/all"
+    enabled: false
+    lang: en
+
+  # 海外暖闻/讨论。英文源不强制中文暖词。
+  # Reddit 合并成一条，避免连续请求被 429。
+  # The Dodo、PetMD 官网 feed 无条目，改走谷歌新闻站内检索。
+  - id: reddit_pets
+    name: Reddit-aww/pets
+    track: warm
+    type: rss
+    url: "https://www.reddit.com/r/aww+pets+cats+dogs/.rss"
+    enabled: true
+    lang: en
+
+  - id: gn_dodo
+    name: The Dodo
+    track: warm
+    type: google_news
+    query: "site:thedodo.com when:7d"
+    hl: "en-US"
+    gl: "US"
+    ceid: "US:en"
+    enabled: true
+    lang: en
+
+  - id: gn_petmd
+    name: PetMD
+    track: warm
+    type: google_news
+    query: "site:petmd.com when:7d"
+    hl: "en-US"
+    gl: "US"
+    ceid: "US:en"
+    enabled: true
+    lang: en
+
+  - id: akc
+    name: AKC Expert Advice
+    track: warm
+    type: rss
+    url: "https://www.akc.org/expert-advice/feed/"
+    enabled: true
+    lang: en

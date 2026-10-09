@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pet Daily · 本机日更</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <div>
+        <p class="brand">Pet Daily</p>
+        <h1>今日日更台</h1>
+        <p class="meta">日期 <span id="today-date">—</span> · 仅本机</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" id="btn-collect" class="btn primary">采集今天</button>
+        <button type="button" id="btn-refresh" class="btn ghost">刷新列表</button>
+      </div>
+    </header>
+
+    <p id="status" class="status" role="status"></p>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>候选新闻</h2>
+        <p id="pick-count">已选 0 条</p>
+      </div>
+      <div id="conflict-list" class="list"></div>
+      <div id="warm-list" class="list"></div>
+      <p id="empty-hint" class="hint">还没有候选。挂梯子后点「采集今天」。</p>
+    </section>
+
+    <section class="panel form-panel">
+      <h2>语气与生成</h2>
+      <label>
+        语气 tone
+        <textarea id="tone" rows="3" placeholder="例如：口语快节奏，冲突和暖心交叉讲，结尾问互动">口语快节奏，冲突和暖心交叉讲，结尾问一句观众怎么看</textarea>
+      </label>
+      <div class="row">
+        <label>
+          时长
+          <input id="duration" type="text" value="45s" />
+        </label>
+        <label class="grow">
+          备注
+          <input id="extra_notes" type="text" placeholder="不要夸大；敏感细节别写死" />
+        </label>
+      </div>
+      <button type="button" id="btn-produce" class="btn primary wide">生成文案</button>
+    </section>
+
+    <section class="panel" id="result-panel" hidden>
+      <h2>生成结果</h2>
+      <div class="result-grid">
+        <article>
+          <div class="result-head">
+            <h3>抖音口播</h3>
+            <button type="button" class="btn tiny" data-copy="script-douyin">复制</button>
+          </div>
+          <pre id="script-douyin" class="script"></pre>
+        </article>
+        <article>
+          <div class="result-head">
+            <h3>小红书</h3>
+            <button type="button" class="btn tiny" data-copy="note-xhs">复制</button>
+          </div>
+          <pre id="note-xhs" class="script"></pre>
+        </article>
+      </div>
+      <h3 class="sub">选用素材</h3>
+      <div id="result-media" class="media-grid"></div>
+    </section>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
